@@ -5,16 +5,19 @@ __lua__
 
 function _init()
 	iplr() -- init player
+	ipickups()
 end
 
 function _update()
 	uplr() -- update player
+	upickups()
 end
 
 function _draw()
 	cls() -- clear screen
 	map() -- draw map
 	dplr() -- draw player
+	dpickups() -- draw pickup obj
 end
 -->8
 
@@ -56,6 +59,36 @@ function move(o)
 	if (btn(2)) o.y-=1	o.fy=false o.ps=34
 	if (btn(3)) o.y+=1 o.fy=false o.ps=0
 
+end
+-->8
+--pickups--
+
+function ipickups()
+	pu={
+	x=70,
+	y=70,
+	act=true,
+	
+	}
+	donuts=0
+end
+
+function upickups()
+
+	if pu.act then
+		if abs(plr.x-pu.x)<=4 and abs(plr.y-pu.y)<=4 then
+			pu.act=false
+			donuts+=1
+		end
+	end
+end
+
+function dpickups()
+
+	if pu.act then
+ 	spr(9,pu.x,pu.y,2,2)
+	end
+	print("donuts:"..donuts,10,10,7)
 end
 __gfx__
 00000111111110000000011111111000000001111111100001111111100000000000000033333333333333333333333333111133333333333111133300000000
