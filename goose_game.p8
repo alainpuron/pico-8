@@ -4,7 +4,7 @@ __lua__
 	function _init()
 		plr_init()
 		fish_placement() -- initial fish placement
-		ymove_init()
+	--	ymove_init()
 	end
 
 	function _update()
@@ -12,8 +12,8 @@ __lua__
 		plr_update()
 		dcam()
 		fish_pickup()
-		anmove_update()
-		fishspawn_update(fish_count,fish_spawn)
+	--	anmove_update()
+ 	spawn_new_fish()
 	end
 
 	function _draw()
@@ -21,7 +21,6 @@ __lua__
 		map()
 		plr_draw()
 		draw_fish()
-		fish_respawn_draw()
 	end
 -->8
 -- player --
@@ -113,37 +112,48 @@ end
  
 fish_list={} -- stores the fish
 fish_count=0 -- fish collected
+fish_limit=5 -- limit
+spawned_fish=0 -- count
+total_score=0 -- score
+
+
+-- fish creation
+function fish_generation()
+	
+
+	for x=0,10 do
+								
+		for y=0,10 do
+									
+			if rnd(15)<.1-- and spawned_fish < fish_limit 
+				 then
+					-- add a fish to the list
+				add(fish_list,{
+											
+					x = x * 8, -- convert grid to pixel
+					y = y * 8,
+					sp = rnd({7,8,9}), -- sprite index
+					act = true
+					})	
+					spawned_fish+=1
+					
+									
+			end -- if statement 
+										
+		end -- for y		
+	end -- for x
+	
+-- function end	
+end
+
+-- place fish init
 function fish_placement()
 
-				local fish_limit=5 -- limit
-				local spawned_fish=0 -- count
-
-				while spawned_fish < fish_limit
-				 do
-								for x=0,20 do
-								
-									for y=0,20 do
-									
-										if rnd(15)<.1 and spawned_fish < fish_limit 
-										 then
-										 -- add a fish to the list
-											add(fish_list,{
-											
-											x = x * 8, -- convert grid to pixel
-											y = y * 8,
-											sp = rnd({7,8,9}), -- sprite index
-											act = true
-											
-											})	
-											spawned_fish+=1
-										
-										end
-										
-									end		
-								end
-
-						end
-
+	while spawned_fish < fish_limit
+	do
+						fish_generation()	
+	end
+	
 end
 
 function fish_pickup()
@@ -158,17 +168,18 @@ function fish_pickup()
 			if abs(plr.x - fish.x) <= 8 and abs(plr.y - fish.y) <= 8 then
 				fish.act = false
 				fish_count += 1 -- add to count
-				 
+				total_score +=1
+
 			end
 		end
 		
 	end
-	
 end
 
 
 function draw_fish()
-	print(fish_count,cx+10,cy+10,7)
+	
+	print(total_score,cx+10,cy+10,7)
 
 	-- for all fish in fish list
 	for fish in all(fish_list)
@@ -177,11 +188,28 @@ function draw_fish()
 				if fish.act then 
 		-- draw fish
 					spr(fish.sp,fish.x,fish.y)
-			end
+				end
 	
 	end			
 		
 		
+end
+
+-- spawns new fish when 
+-- all are collected
+function spawn_new_fish()
+		
+		if fish_count == spawned_fish
+			then
+			spawned_fish=0
+			fish_count=0
+			fish_list = {} -- resets the list
+			fish_placement()
+
+		-- if statement 	
+		end 
+		
+-- function
 end
 -->8
 -- camera --
@@ -228,26 +256,6 @@ function anmove_update()
 	end -- if
 	
 end -- fuc
--->8
--- spawn fish after --
-
-
-function fishspawn_update(fc,sf)
-		
--- spawn new fish after 
--- original amount dissa[ears 
-
- if fc == sf
-	then
-	fc=0
-	fish_placement()
-	
- end	
-end
-
-function fish_respawn_draw()
-	draw_fish()
-end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000660000002200000011000000000000033333333333333cccccccccccccccc00000000
 00000000000000000000000000000000000000000000000000000000d0111600e0999a0080888900000000000333434333334334cccccc7ccc6666cc00000000
