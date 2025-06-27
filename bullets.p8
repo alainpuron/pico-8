@@ -1,0 +1,115 @@
+pico-8 cartridge // http://www.pico-8.com
+version 42
+__lua__
+function _init()
+	-- mouse 
+	gposx=0
+	gposy=0
+	poke(0x5f2d,1)
+	
+	-- mouse sprite
+	sp=1
+	ibullets()
+	
+	
+end
+
+function _update()
+	gposy=stat(33)
+
+-- if x is pressed then shot
+	if btn(❎) then
+		shoot(gposy)
+	end
+	
+	ubullets()
+
+
+end
+
+function _draw()
+
+	cls()
+	
+	-- on btn x what happens 
+	if btn(❎) then
+		spr(2,8,gposy)
+		sp=1
+	end
+	
+	-- initial mouse spr
+	spr(sp,0,gposy)
+	sp=1
+	dbullets()
+	
+	
+end
+-->8
+-- bullets --
+
+function ibullets()
+
+-- table for bullets
+	buls={}
+end
+
+function ubullets()
+
+	-- for every bullet(b) 
+	-- in all bullet list (buls)
+	
+	-- bullet do something
+	for b in all(buls) do
+	
+	-- bullet position 
+	b.x+=b.spd
+	
+	-- if bullet is out of 
+	-- screen then delete 
+	-- from table
+		if b.x > 128
+			then
+			del(buls,b)
+		end
+		
+		
+	end	
+
+end
+
+
+function dbullets()
+
+-- draw each bullet to the scr
+	for b in all(buls) do
+	
+	-- spr, x,y
+		spr(4,b.x,b.y)
+	
+	end	
+
+end
+
+function shoot(gy)
+	
+	-- when shoot happens
+	-- add to the table buls
+	-- propeties of bullet
+	
+	add(buls, {
+	x=8,  -- x position
+	y=gy, -- follos mouse 
+	spd=3 -- speed
+	
+	})
+
+end
+__gfx__
+1000111010001110cc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+7111666171116661c7ccc00000000000009990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+616177716161777177777cc00000000009aaaa900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+d161ddd1d161ddd17777777c000000000aa777a90000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+51d1555151d155517777777c0000000009aaaa900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+511155515111555177777cc000000000009990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+1000111010001110c7ccc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000000000cc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
