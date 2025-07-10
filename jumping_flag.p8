@@ -29,9 +29,9 @@ cls()
 draw_map()
 player_draw()
 
-print(has_flag)
-print(tile)
-print(can_move(lastx,lasty))
+print(fget(tile,tile_type))
+print(mget(plr.x,plr.y))
+print(mget(flr(plr.x +3)/8,flr(plr.y+7)/8))
 
 end
 -->8
@@ -53,10 +53,10 @@ end
 
 -- what tile is it?
 
-function is_tile(tile_type,x,y,x2,y2)
+function is_tile(tile_type,x,y)
 
 		-- what spr is the tile 
-		tile =	mget(x,y,x2,y2)
+		tile =	mget(x,y)
 		
 		-- tile has flag
 		has_flag = fget(tile,tile_type)
@@ -71,12 +71,18 @@ end
 --the tile at x,y is not a wall.
 
 function can_move(x,y)
+	tile_size = 8
+	--right 
 	
-	x=plr.x + 7 / 8
-	y=plr.y + 7 / 8
-	x2 =flr(plr.x + 16) / 8
+	x=flr(plr.x + 7 / tile_size)
+	y=flr(plr.y + 7 / tile_size)
+	
+	
 	-- tile is not wall
-	return not is_tile(wall,x,y,x2,y2)
+	
+	if (mget(plr.x,plr.y)) ~=32 then
+	return not is_tile(wall,x,y)
+	end
 
 end
 
