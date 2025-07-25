@@ -24,6 +24,7 @@ end
 
 function _draw()
   cls()
+	draw_health(heart)
 
 	player_draw(plr)
 	bullet_draw()
@@ -42,18 +43,23 @@ function player_init()
 	vy=0,
 	r = 6,
 	health = 10
-
+	}
 	
+	heart={
+	sprite = 48,
+	x=0,
+	y=0,
+	amount = 3
 	}
 	
 end
+
 
 function player_update()
 	move(plr)
 end
 
 function player_draw(plr)
-
 -- angle of rotation (should be updated each frame)
 -- assume angle is already defined
 
@@ -72,8 +78,8 @@ y3 = plr.y + sin(plr.angle + 1.32) * plr.r
 line(x1, y1, x2, y2, 13) -- right
 line(x2, y2, x3, y3, 6) -- bottom
 line(x3, y3, x1, y1, 13) -- left
-print(plr.angle)
-print(plr.health)
+--print(plr.angle)
+--print(plr.health)
 
 
 
@@ -112,6 +118,23 @@ function move(plr)
 
   
 end
+
+-- removes amount of hearts
+function lose_health(heart)
+			heart.amount-=1
+end
+
+function draw_health(heart)
+
+
+	for i=1,heart.amount do
+		spr(heart.sprite,(heart.x+i) * 8,heart.y,1,1)
+	end
+	
+end
+
+
+
 -->8
 -- bullet --
 
@@ -351,6 +374,10 @@ function asteroid_hit()
 		-- hits player	then destoy
 		if hit_plr then
 			destroy(asteroids,a)
+			
+			-- when player hit by ast
+			-- remove a heart
+			lose_health(heart)
 		end
 		
 		-- bullet hit ast	
