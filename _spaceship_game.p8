@@ -7,6 +7,8 @@ function _init()
   bullet_init()
   asteroid_init()
   alien_init()
+ 	alien_bullet()
+
 
 end
 
@@ -15,25 +17,26 @@ function _update()
 	player_update() 
 	bullet_update()
 	asteroid_update()
-	
 	asteroid_hit()
-	 
 	on_explotion(asteroids,2)
 	on_explotion(alien,6)
 	
 	animation(alien,s, 8)
+	
 	alien_update()
 	
 end
 
 function _draw()
-  cls()
-  show_points(plr)
+ cls()
+ show_points(plr)
 	draw_health(plr)
 	player_draw(plr)
-	bullet_draw()
+	bullet_draw(b,bullets)
 	asteroid_draw()
 	alien_draw()
+	bullet_draw(asb,ab)
+
 end
 
 -->8
@@ -146,7 +149,7 @@ function bullet_update()
 
 	shoot(plr)
 	obj_behavior(bullets,b)
-	outbound(b,bullets,128)
+	outbound(b,bullets)
 	
 end
 
@@ -162,13 +165,13 @@ function obj_behavior(list,item)
 end
 
 
-function bullet_draw()
+function bullet_draw(item,list)
 
 	-- draw each bullet created 
-	for b in all(bullets) do
+	for item in all(list) do
 	
 	-- spr, x,y
-		spr(1,b.x,b.y)
+		spr(1,item.x,item.y)
 	
 	end	
 	
@@ -247,7 +250,7 @@ function asteroid_movement()
 
 	for a in all(asteroids) do	
 			a.y += a.speed			
-		outbound(a,asteroids,128)	
+		outbound(a,asteroids)	
 	end	
 	
 end
@@ -276,13 +279,15 @@ end
 
 -- if an item is out of certain
 -- range then destoy it 
-function outbound(item,list,range)
+function outbound(item,list)
 	
 	for item in all(list) do
-	
-		if item.x > range then
+			
+		if item.x > 150 or item.y > 150 or item.x < -150 or item.y < -150
+			then
 				destroy(list,item)
 		end
+		
 		
 	end
 	
@@ -370,14 +375,24 @@ function asteroid_hit()
 			lose_health(plr)
 		end
 		
+		
+			-- alien ship hits player
 		local hit_alien,s = collided(alien,plr,10)
 		
-		-- alien ship hits player
 		if hit_alien then
 				destroy(alien,s)
 				lose_health(plr)
 		end
 		
+		-- alien bullet hits player
+			 local hit_alien_bullet,asb = collided(ab,plr,5)
+		
+		if hit_alien_bullet then
+		
+				lose_health(plr)
+				destroy(ab,asb)
+
+		end
 		-- bullet hit ast	
 		for b in all(bullets) do
 	
@@ -417,30 +432,40 @@ end
 -- alien ship -- 
 
 function alien_init()
- -- table to store aliens 
 	alien={}
-	-- timer for creation
-	alien_creation_timer=0
+	alien_creation_timer =0
+end
+
+function alien_count()
 	
 end
 
 function alien_update()
 
-			alien_creation()
+			alien_creation(plr)
 			alien_movement(alien)
-			outbound(s,alien,200)
+			obj_behavior(ab,asb)
+			
+			if time() % 1.5 < 0.05 then
+				ab_shoot(s)
+			end
+			
+			outbound(s,alien)
+			outbound(asb,ab)
 end
 
 -- creates the alien ship
-function alien_creation()
+function alien_creation(plr)
 
 	alien_creation_timer+=1
-	
-	if alien_creation_timer >=60 then
-		
+	if rnd(100) < 1 and plr.points > 500 and #alien <= 3 and alien_creation_timer >= 60 then 
+				
+			local alienx = 120
+			local alieny = rnd({100,60})
+			
 			add(alien,{	
-			x=120,
-			y=rnd({100,60}),
+			x=alienx,
+			y=alieny,
 			sprite = 8,
 			first_sprite = 8,
 			animation_timer = 0,
@@ -448,12 +473,10 @@ function alien_creation()
 			dir = flr(rnd(2)),
 			exploded = false,
 			points = 100
-			
+
 	})
 	
-		-- resets the timer
-		alien_creation_timer=0
-		
+	alien_creation_timer = 0
 	end
 	
 end
@@ -479,7 +502,6 @@ function alien_draw()
 	for s in all(alien) do
 		spr(s.sprite,s.x,s.y,2,2)
 	end
-	
 	
 end
 
@@ -508,6 +530,41 @@ function animation(list,item,timer)
 
 end
 
+-- alien ship shooting --
+
+function alien_bullet()
+ -- alien bullet
+	ab = {}
+	ab_creation_time = 0
+end
+
+function ab_shoot(s)
+
+
+
+	for s in all(alien) do
+
+	local dx = plr.x - s.x
+	local dy = plr.y - s.y
+	local dist = sqrt(dx*dx + dy*dy)
+
+	add(ab, {
+	x= s.x-3 ,  
+	y= s.y-7 , 
+	dmg = 3, 
+	sprite = 1,
+	
+	-- shoots toward the player
+	spdx = dx / dist * 1,
+	spdy = dy / dist * 1
+	
+	})
+
+
+
+end
+end
+
 
 -->8
 -- points --
@@ -519,6 +576,8 @@ end
 function show_points(plr)
   print("score: "..plr.points, 40, 5, 10)
 end
+
+
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 01100110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
