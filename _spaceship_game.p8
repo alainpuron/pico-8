@@ -4,7 +4,6 @@ __lua__
 
 -- need to fix
 
-	-- 1. where ast come from
 	-- 2. alien's double bullets
 	-- 3. game over screen
 	-- 4. make hearts appear at rand?
@@ -210,18 +209,37 @@ function asteroid_creation()
 	creation_time+=1
 	
 	local sp = flr(rnd({64,96,102}))
+	local direction = flr(rnd(6))
+	 
+	-- lookup table for positions 
+	local start_directions = {
+	
+	 [0] = {x=0, y=0},
+  [1] = {x=125, y=0},
+  [2] = {x=0, y=125},
+  [3] = {x=125, y=125},
+  [4] = {x=64, y=0},
+  [5] = {x=64, y=125}
+	
+	}
+	
+	-- set x_value and y_value:
+	local x_value = start_directions[direction].x
+	local y_value = start_directions[direction].y
+	
 	
 	if creation_time >= 60 then
 	
 		add(asteroids, {
-		x=rnd(68),  
-		y=	0, 
+		x=x_value,  
+		y=y_value, 
 		speed = 0.7,
 		sprite = sp,
 		first_sprite = sp,
 		exploded = false,
 		animation_timer = 0,
-		points = 50
+		points = 50,
+		dir = direction
 		
 		})
 	
@@ -233,9 +251,39 @@ end
 
 function asteroid_movement()
 
-	for a in all(asteroids) do	
-			a.y += a.speed			
-	end	
+	for a in all(asteroids) do
+			
+			-- direction
+			if a.dir == 0 then
+				a.y+=a.speed 
+				a.x+=a.speed 
+			end
+					
+			if a.dir == 1 then
+				a.y+=a.speed 
+				a.x-=a.speed 
+			end	
+			
+		if a.dir == 2 then
+			a.y -= a.speed -- from bottom-left
+			a.x += a.speed
+		end
+
+		if a.dir == 3 then
+			a.y -= a.speed -- from bottom-right
+			a.x -= a.speed
+		end	
+			
+			if a.dir == 4 then
+				a.y+=a.speed
+			end
+			
+			if a.dir == 5 then
+				a.y-=a.speed
+			end
+					
+	end
+			
 	
 end
 
@@ -513,17 +561,28 @@ function alien_creation(plr)
 	
 	if rnd(100) < 1 and plr.points > 0 and #alien <= 3 and alien_creation_timer >= 60 then 
 				
-			local alienx = 127
-			local alieny = rnd({75,60})
+			local direction = flr(rnd(4))
+			
+			-- lookup table for positions 
+			local start_directions = {
+			 [0] = {x=120, y=60},
+		  [1] = {x=120, y=75},
+		  [2] = {x=0, y=75},
+		  [3] = {x=0, y=65}		
+			}	
+			
+				-- set x_value and y_value:
+			local x_value = start_directions[direction].x
+			local y_value = start_directions[direction].y
 			
 			add(alien,{	
-			x=alienx,
-			y=alieny,
+			x	=	x_value,
+			y	=	y_value,
 			sprite = 8,
 			first_sprite = 8,
 			animation_timer = 0,
 			speed = 1,
-			dir = flr(rnd(2)),
+			dir = direction,
 			exploded = false,
 			points = 100
 
@@ -538,11 +597,13 @@ function alien_movement(alien)
 
   for s in all(alien) do
   	
-  	if s.dir == 2 then
-  				s.x+=s.speed
-				else
-					s.x-=s.speed 		  	
-  	end
+  		if s.dir == 0 or s.dir == 1 then
+  				s.x -=s.speed
+  		end
+  		
+  		if s.dir == 2 or s.dir == 3 then
+  				s.x +=s.speed
+  		end
   		
   end
   
@@ -561,7 +622,7 @@ end
 function ab_shoot(s)
 
 	
-		if time() % 1.5 < 0.05  then
+		if time() % 2 < 0.01  then
 
 			for s in all(alien) do
 
@@ -574,6 +635,7 @@ function ab_shoot(s)
 					y= s.y-7 , 
 					dmg = 3, 
 					sprite = 1,
+					
 					-- shoots toward the player
 					spdx = dx / dist * 1,
 					spdy = dy / dist * 1
