@@ -6,11 +6,13 @@ function _init()
 map_layout()
 plr_init()
 inventory_init()
+obj_init()
 
 end
 
 function _update()
 plr_update()
+obj_pickup(plr,inv)
 end
 
 
@@ -21,11 +23,9 @@ function _draw()
 	draw_map(tiles)
 	plr_draw(plr)
 	inventory_draw()
-	print(plr.x)
-	print(plr.y)
 	
-	print(map_data[flr(plr.x / 16) + 1][flr(plr.y / 8) + 1])
-
+	obj_draw(objects)
+	
 
 end
 -->8
@@ -269,13 +269,6 @@ function inventory_init()
 	})
 	
 	
-	add(inv,{
-	
-	name = 'gold',
-	amount = 5,
-	sprite = 75
-	})
-	
 end
 
 function inventory_draw()
@@ -284,10 +277,111 @@ function inventory_draw()
 	
 	for i=1,#inv do
 		spr(inv[i].sprite,22+9*i,117,1,1)
+		
+		-- prints the amount in inv
+	 print(inv[i].amount,22+12*i,120,7)
+
 	end
 	
 end
 
+-->8
+-- obj and pick up --
+function obj_init()
+	
+	objects = {
+	
+	{	name	='gold',id = 1 ,amount = 0,sprite = 74},
+	{ name ='axe',id = 2, amount = 0,sprite = 75}
+	
+	}
+	
+	spawned_objects = {}
+	obj_spawning(15)
+	
+end
+
+function obj_spawning(how_much)
+
+	for i=1,how_much do
+
+		add(spawned_objects, {
+    name = 'gold',
+    sprite = 75,
+    amount =1,
+    id = 1,
+    x = rnd(30) * rnd(8),
+    y = rnd(30) *	rnd(8)
+  })	
+		  
+	end  
+
+end
+
+function list_has(list,id)
+
+  for item in all(list) do
+  
+    if item.id == id then
+      return item
+      
+    end
+    
+  end
+  return nil
+end
+
+-- picks up an object 
+function obj_pickup(plr,inv)
+	
+		for obj in all(spawned_objects) do
+				
+				if abs(plr.x - obj.x) < 8 and abs(plr.y - obj.y) < 8 then
+					
+					-- checks if exist 
+					local existing = list_has(inv,obj.id)
+				
+				-- if obj already in the inv
+				-- then just add 1 to the amount
+					if existing then
+					
+							existing.amount+=obj.amount
+							del(spawned_objects,obj)
+
+					end
+					-- if obj not exist in inv then add it	
+					if not existing then
+							add(inv,{
+							
+								name 		=	obj.name,
+								id 				= obj.id,
+								amount = obj.amount,
+								sprite = obj.sprite
+				
+						})
+				
+					-- deletes the object from map
+						del(spawned_objects,obj)
+			
+						break
+				end
+		
+			
+			end	
+		
+		end
+	
+end
+
+
+
+function obj_draw()
+	
+	for obj in all(spawned_objects) do
+    spr(obj.sprite, obj.x, obj.y)
+  end
+
+end
 __gfx__
 00000000000000011000000000000000000000000000000110000000000000000000000000000001100000000000000000000000000000011000000000000000
 00000000000001155110000000000000000000000000011cc110000000000000000000000000011bb110000000000000000000000000011bb110000000000000
