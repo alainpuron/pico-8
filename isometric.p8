@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 42
+version 43
 __lua__
 
 --- collition progress ---
@@ -17,15 +17,17 @@ inventory_init()
 obj_init()
 
 	-- spawn some tools
-obj_spawning(1,objects,plr,2)
-obj_spawning(1,objects,plr,4)
-obj_spawning(1,objects,plr,3)
+obj_spawning(1,objects,plr,'axe')
+obj_spawning(1,objects,plr,'shovel')
+obj_spawning(1,objects,plr,'hoe')
 
 
 end
 
 function _update()
 plr_update()
+select_inv()
+
 obj_pickup(plr,inv)
 
 end
@@ -202,7 +204,7 @@ function plr_actions()
 			-- grass to soil
 			[8] = {
 				
-				required_item = 4, -- hoe
+				required_item = 'hoe', -- hoe
 				new_tile = 132, -- soil
 				old_tile = 8
 			
@@ -211,7 +213,7 @@ function plr_actions()
 			-- soil to grass
 			[132] = {
 			
-				required_item = 4, -- hoe
+				required_item = 'hoe', -- hoe
 				new_tile = 8, -- grass
 				old_tile = 132
 			
@@ -221,14 +223,14 @@ function plr_actions()
 			-- to chop the tree an axe is required(2)
 			[128] = {
 			
-				required_item = 2,
+				required_item = 'axe',
 				new_tile = 8,
 				old_tile = 128,
 				
 				-- spawns sapplings and logs
 				extra_action = function()
-					obj_spawning(5, objects, plr, 5)
-					obj_spawning(1, objects, plr, 6)
+					obj_spawning(5, objects, plr, 'log')
+					obj_spawning(1, objects, plr, 'tree_sap')
 				end
 			
 			},
@@ -236,7 +238,7 @@ function plr_actions()
 			
 				[4] = {
 			
-				required_item = 3, -- shovel
+				required_item = 'shovel', -- shovel
 				new_tile = 0, -- grass
 				old_tile = 4
 			
@@ -248,7 +250,7 @@ function plr_actions()
 		local action = actions[tile]
 		
 			-- if under an action tile and have right tool then do
-		if action and list_has(inv,action.required_item) then
+		if action and list_has(inv,action.required_item) and inv[selection].name == action.required_item then
 				
 				-- swap old tile for new one
 				tile_action(plr,  action.new_tile, action.old_tile)
@@ -325,13 +327,15 @@ end
 function inventory_init()
 	
 	inv={}
-	  
+	selection = 1
+
 end
 
 function inventory_draw()
 	
+	
 	rectfill(30,116,98,125,15)
-
+	
 	for i=1,#inv do
 		spr(inv[i].sprite,22+9*i,117,1,1)
 		
@@ -340,8 +344,25 @@ function inventory_draw()
 
 	end
 	
+		rect(21+selection*9,116,30+selection*9,125,7)
+
 end
 
+-- inv selection 
+function select_inv()
+	
+		if btnp(🅾️)  then
+		 
+			if selection < #inv then
+				selection+=1
+				
+				else	
+				selection = 1
+			end	
+				
+		end
+		
+end
 -->8
 -- obj and pick up --
 function obj_init()
@@ -361,7 +382,7 @@ function obj_init()
 	
 end
 
-function obj_spawning(how_much,list,plr,id)
+function obj_spawning(how_much,list,plr,name)
 
 
 
@@ -371,7 +392,7 @@ function obj_spawning(how_much,list,plr,id)
 	-- in a list based on id
 	for item in all(list) do
 	
-		if item.id == id then
+		if item.name == name then
 		
 			-- item to spawn is then the item
 			item_to_spawn = item
@@ -403,11 +424,11 @@ end
 
 -- checks if a list has an item
 -- based on an id
-function list_has(list,id)
+function list_has(list,name)
 
   for item in all(list) do
   
-    if item.id == id then
+    if item.name == name then
      
       return item
       
@@ -429,7 +450,7 @@ function obj_pickup(plr,inv)
 				if abs(plr.x - obj.x) < 8 and abs(plr.y - obj.y) < 8 then
 					
 					-- checks if exist in the inventory
-					local existing = list_has(inv,obj.id)
+					local existing = list_has(inv,obj.name)
 				
 					-- if obj already in the inv
 					-- then just add 1 to the amount
