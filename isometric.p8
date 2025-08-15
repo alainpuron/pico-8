@@ -27,7 +27,6 @@ end
 function _update()
 plr_update()
 select_inv()
-
 obj_pickup(plr,inv)
 
 end
@@ -40,7 +39,8 @@ function _draw()
 	draw_map(tiles)
 	plr_draw(plr)
 	inventory_draw()
-	
+	player_looking(plr)
+
 	obj_draw(objects)
 	is_tile(0,plr.x,plr.y)
 end
@@ -298,6 +298,27 @@ function draw_cam(plr)
 	cy=plr.y+8-63
 	camera(cx,cy)
 end
+
+
+function get_pixel_pos(tx, ty)
+  local px = (tx - ty) * 16 + 64
+  local py = (tx + ty) * 8
+  return px, py
+end
+
+
+function player_looking(plr)
+  local tx, ty = get_tile_pos(plr.x, plr.y)
+
+  if map_data and map_data[ty] and map_data[ty][tx] then
+    local px, py = get_pixel_pos(tx, ty)
+
+    -- draw sprite 0 at the correct pixel position
+    spr(0, px, py, 4, 4)
+  end
+end
+
+
 -->8
 
 -- reverse isometric projection
