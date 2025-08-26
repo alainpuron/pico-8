@@ -139,7 +139,9 @@ function draw_map(tiles)
       local tree_tile = tree_layer[y][x]
             
       if tree_tile then
-							spr(tree_tile, sx, sy -16, 4, 4)
+      	
+      	spr(tree_tile, sx, sy-16, 4, 4)
+														
 						end
 						
 						local flower_tile = flower_layer[y][x]
@@ -273,12 +275,33 @@ function actions()
 				
       local tile = l[ty][tx]
 
+						-- player holding a hoe and on grass or flawers
 					 if tile == 8 or tile == 12 then 
-					 		if inv[selection].name == 'hoe'  then
-									map_data[ty][tx] = 132
-								end
-								break
-						end	
+					 			
+					 			if inv[selection].name == 'hoe'  then
+										l[ty][tx] = 132
+									end
+							
+						end	--if(1)
+						
+						if tile == 132 then
+							 
+							 if inv[selection].name == 'carrot_seed' and inv[selection].amount > 0 then
+							 	inv[selection].amount -=1
+							 	l[ty][tx] = 136
+							 end
+							 
+						end -- if(2)
+						
+						if tile == 128 then
+						
+							if inv[selection].name == 'axe' and inv[selection].amount > 0 then
+							 	
+							 	l[ty][tx] = 8
+							 
+							 end
+							 
+						end 
 						
 				end
 				
@@ -495,7 +518,7 @@ function obj_init()
 	{ name ='hoe',id = 4, amount = 0,sprite = 122},
 	{ name ='log',id = 5, amount = 0,sprite = 224},
 	{ name ='tree_sap',id = 6, amount = 0,sprite = 240},
-	{ name ='carrot_seed',id = 7, amount = 0,sprite = 96}
+	{ name ='carrot_seed',id = 7, amount = 1,sprite = 96}
 
 	}
 	
