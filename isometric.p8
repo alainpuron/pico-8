@@ -30,7 +30,7 @@ plr_update()
 select_inv()
 obj_pickup(plr,inv)
 crop_update()
-check_margin(plr)
+--check_margin(plr)
 end
 
 
@@ -46,8 +46,7 @@ function _draw()
 
 	obj_draw(objects)
 	is_tile(0,plr.x,plr.y)
-
- print(debug_msg, plr.x, plr.y, 7) -- white text at bottom
+check_margin(plr)
 
 end
 -->8
@@ -224,25 +223,70 @@ end -- function
 
 function check_margin(plr)
 	
-	if plr.y >	#map_data - 2 then
-		add_row()
-	end
+	-- get the map_data location
+	-- when the player is approaching 
+	-- the end of the terrain, new is generated 
+	 local tx, ty = get_tile_pos(plr.x, plr.y)
+			local layers = {tree_layer, flower_layer}
+
+		print(tx,plr.x+15,plr.y+15,7)
+		print(ty,plr.x,plr.y+15,7)
+		
+		if tx == #map_data[1] then
+			print('❎❎❎')
+			
+		for y=1,#map_data do	
+			for x=1,2 do
+				add(map_data[y],8) 
+			end
+		end	
+		
+		end
+		
+		if ty == #map_data then
+    print('🅾️🅾️🅾️')
+    
+    -- create a new row for base map
+    local new_row = {}
+   
+    for x=1,#map_data[1] do
+    
+     add(new_row, 8)  -- fill with grass or whatever
+   
+    end
+    
+    add(map_data, new_row)
+
+    -- make tree layer row (same width, but nil)
+    local tree_row = {}
+				local flower_row = {}
+				
+    for x=1,#map_data[1] do
+    
+      add(tree_row, nil)
+      add(flower_row, nil)
+
+    end
+    
+    add(tree_layer, tree_row)
+    add(flower_layer, flower_row)
+				local layers = {tree_layer, flower_layer}
+
+				local last_y = #map_data
+    
+    -- tree generation
+    generate_overlay(tiles.grass, tiles.tree, tree_layer, "rare", layers)
+    -- flower generation
+    generate_overlay(tiles.grass, tiles.flower, flower_layer, "rare", layers)
+    
 	
-	if plr.y > #map_data[1] then
-		add_column()
-	end
 	
+		end -- if(2)
+	
+
 end
  
-debug_msg = ""
 
-function add_column()
- debug_msg = "add column at "..plr.x..","..plr.y
-end
-
-function add_row()
- debug_msg = "add row at "..plr.x..","..plr.y
-end
 
 -->8
 -- player --
@@ -881,9 +925,6 @@ __gfx__
 00345b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 033b33b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00054000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-__gff__
-0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0101010100000000000000000000000001010101000000000000000000000000010101010000000000000000000000000101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 00000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
