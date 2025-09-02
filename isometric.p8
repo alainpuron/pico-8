@@ -87,21 +87,29 @@ function map_layout()
   {8,8,8,8,8,8,8,8}
 }
 
-	-- player made
-	soil_layer = {}
-	-- game made 
-	tree_layer =	{}
-	flower_layer = {}
 	
-	tree_layer = create_layer(map_data)	
-	flower_layer = create_layer(map_data)
+	f_layer = create_layer(map_data)
+	s_layer = create_layer(map_data)
+	
+	layers = {f_layer, s_layer}
+
+	layer_gen(tiles.tree,f_layer,'common',layers)
+	layer_gen(tiles.flower,f_layer,'common',layers)
+	layer_gen(tiles.water,f_layer,'common',layers)
+
+	-- game made 
+--	tree_layer =	{}
+--	flower_layer = {}
+	
+--	tree_layer = create_layer(map_data)	
+--	flower_layer = create_layer(map_data)
 
 	
-	local layers = {tree_layer, flower_layer}
+--	local layers = {tree_layer, flower_layer}
 	
 	-- tile where it's being place, tile that is getting placed, layer of tile, app rate, check if empty
-	generate_overlay(tiles.grass,tiles.tree,tree_layer,'rare',layers)
-	generate_overlay(tiles.grass,tiles.flower,flower_layer,'common',layers)
+	--generate_overlay(tiles.grass,tiles.tree,tree_layer,'rare',layers)
+--	generate_overlay(tiles.grass,tiles.flower,flower_layer,'common',layers)
 
 
 end -- function
@@ -141,21 +149,20 @@ function draw_map(tiles)
       spr(tile, sx, sy, 4, 4)
   				
        -- draw overlay if true
-      local tree_tile = tree_layer[y][x]
+      local to_be_placed = f_layer[y][x]
             
-      if tree_tile then
+      if to_be_placed then
       	
-      	spr(tree_tile, sx, sy-16, 4, 4)
+      	if to_be_placed == tiles.tree then
+      		spr(to_be_placed, sx, sy-16, 4, 4)
+      	
+      	else
+      		 spr(to_be_placed, sx, sy, 4, 4)
+      	end
+      	
 														
 						end
-						
-						local flower_tile = flower_layer[y][x]
-						
-						if flower_tile  then
-								spr(flower_tile, sx, sy, 4, 2)
-						end
-		
-      
+ 
     end -- for loop(2)
     
   end -- for loop(1)
@@ -178,106 +185,109 @@ function is_empty_at(x, y, layers)
   
 end
 
-				
-		
 
-function generate_overlay(tile,replacement,layer,app_rate,all_layers)
+function layer_gen(replacement,layer,app_rate,layers,x_start, x_end)
+
+	local used_last = false 
 	
-	local	used_last = false
-
-	for y=1, #map_data do
-		for x=1,#map_data[y] do
+	for y=1,#map_data do
+		for x=x_start or 1,x_end or #map_data[y] do
 			
-			-- if base map equals tile and x,y is empty in the layers
-			if map_data[y][x] == tile and  is_empty_at(x, y, all_layers)  then
+			-- if is on grass and is empty
+			if map_data[y][x] == tiles.grass and is_empty_at(x,y,layers) then
+			
+				local last_chance
+				
+					if	app_rate == 'common' then
+							last_chance = used_last and 4 or 1
+					end
 					
-					local last_chance
-				
-				if	app_rate == 'common' then
-						last_chance = used_last and 0.3 or 0.1
-				end
-				
-				if	app_rate == 'rare' then
-					 last_chance = used_last and 0.2 or 0.1
-				end
-				
-			--	local last_chance = used_last and 0.3 or 0.1
-				
-				if rnd() < last_chance then
+					if	app_rate == 'rare' then
+						 last_chance = used_last and 2 or 1
+					end
+										
+					if flr(rnd(11)) < last_chance then
 						layer[y][x] = replacement
 						used_last = true
-						
+								
 						else
 							layer[y][x] = nil
 							used_last = true
-				end -- if
+					end -- if(2)
 					
-			end-- for(2)
-		end -- for(1)
-		
-	end -- if
+				
+			end -- if(1)
+			
+		end -- for(2)
+	end -- for(1)
 	
+		
 end -- function
 
 -- generate map as player explores
 
 function check_margin(plr)
 	
-	-- get the map_data location
-	-- when the player is approaching 
-	-- the end of the terrain, new is generated 
 	 local tx, ty = get_tile_pos(plr.x, plr.y)
-			local layers = {tree_layer, flower_layer}
-
+	--	local layers = {tree_layer, flower_layer}
+	local new_start_x = #map_data[1]
+	
 		print(tx,plr.x+15,plr.y+15,7)
 		print(ty,plr.x,plr.y+15,7)
 		
-		if tx == #map_data[1] then
-			print('❎❎❎')
-			
-		for y=1,#map_data do	
-			for x=1,2 do
-				add(map_data[y],8) 
-			end
-		end	
-		
-		end
+		local new_column = {}
+		if (tx + 3) == #map_data[1]  then
+					
+				for y=1,#map_data do	
+				
+					for x=1,2 do
+						add(map_data[y],tiles.grass)
+						add(f_layer,nil)
+ 
+					end -- for(2)
+
+				end	 -- for(1)
+				
+			layer_gen(tiles.tree,f_layer,'rare',layers,new_start_x, #map_data[1])
+			layer_gen(tiles.water,f_layer,'common',layers,new_start_x, #map_data[1])
+			layer_gen(tiles.flower,f_layer,'common',layers,new_start_x, #map_data[1])
+
+		end -- if(1)
 		
 		if ty == #map_data then
-    print('🅾️🅾️🅾️')
-    
+		    
     -- create a new row for base map
-    local new_row = {}
+   -- local new_row = {}
    
     for x=1,#map_data[1] do
     
-     add(new_row, 8)  -- fill with grass or whatever
+   --  add(new_row, 8)  -- fill with grass
    
     end
     
-    add(map_data, new_row)
+   -- add(map_data, new_row)
 
     -- make tree layer row (same width, but nil)
-    local tree_row = {}
-				local flower_row = {}
+   -- local tree_row = {}
+			--	local flower_row = {}
 				
     for x=1,#map_data[1] do
     
-      add(tree_row, nil)
-      add(flower_row, nil)
+     -- add(tree_row, nil)
+     -- add(flower_row, nil)
 
     end
     
-    add(tree_layer, tree_row)
-    add(flower_layer, flower_row)
-				local layers = {tree_layer, flower_layer}
+  --  add(tree_layer, tree_row)
+   -- add(flower_layer, flower_row)
+			--	local layers = {tree_layer, flower_layer}
 
-				local last_y = #map_data
+			--	local last_y = #map_data
     
     -- tree generation
-    generate_overlay(tiles.grass, tiles.tree, tree_layer, "rare", layers)
+   -- generate_overlay(tiles.grass, tiles.tree, tree_layer, "rare", layers)
     -- flower generation
-    generate_overlay(tiles.grass, tiles.flower, flower_layer, "rare", layers)
+  --  generate_overlay(tiles.grass, tiles.flower, flower_layer, "rare", layers)
     
 	
 	
@@ -298,8 +308,8 @@ function plr_init()
 	last_sprite = 68,
 	height = 2,
 	width = 2,
-	x = 100,
-	y = 100,
+	x = 50,
+	y = 50,
 	speed = 1,
 	animation_timer = 0,
 	fx = false,
@@ -755,7 +765,7 @@ function is_tile(tile_type,x,y)
 
 	 local tx, ty = get_tile_pos(x,y)
 
-		local tile =	tree_layer[ty][tx]
+		local tile =	f_layer[ty][tx]
 		
 		
   
