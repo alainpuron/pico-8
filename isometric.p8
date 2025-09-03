@@ -97,20 +97,6 @@ function map_layout()
 	layer_gen(tiles.flower,f_layer,'common',layers)
 	layer_gen(tiles.water,f_layer,'common',layers)
 
-	-- game made 
---	tree_layer =	{}
---	flower_layer = {}
-	
---	tree_layer = create_layer(map_data)	
---	flower_layer = create_layer(map_data)
-
-	
---	local layers = {tree_layer, flower_layer}
-	
-	-- tile where it's being place, tile that is getting placed, layer of tile, app rate, check if empty
-	--generate_overlay(tiles.grass,tiles.tree,tree_layer,'rare',layers)
---	generate_overlay(tiles.grass,tiles.flower,flower_layer,'common',layers)
-
 
 end -- function
 
@@ -186,12 +172,19 @@ function is_empty_at(x, y, layers)
 end
 
 
-function layer_gen(replacement,layer,app_rate,layers,x_start, x_end)
+function layer_gen(replacement,layer,app_rate,layers,x_start, x_end,y_start, y_end)
 
 	local used_last = false 
 	
-	for y=1,#map_data do
-		for x=x_start or 1,x_end or #map_data[y] do
+	
+ 	y_start = y_start or 1
+  y_end = y_end or #map_data
+  x_start = x_start or 1
+  x_end = x_end or #map_data[1]
+
+	
+	for y=y_start,y_end do
+		for x=x_start,x_end do
 			
 			-- if is on grass and is empty
 			if map_data[y][x] == tiles.grass and is_empty_at(x,y,layers) then
@@ -249,48 +242,44 @@ function check_margin(plr)
 				end	 -- for(1)
 				
 			layer_gen(tiles.tree,f_layer,'rare',layers,new_start_x, #map_data[1])
-			layer_gen(tiles.water,f_layer,'common',layers,new_start_x, #map_data[1])
-			layer_gen(tiles.flower,f_layer,'common',layers,new_start_x, #map_data[1])
+			layer_gen(tiles.water,f_layer,'rare',layers,new_start_x, #map_data[1])
+			layer_gen(tiles.flower,f_layer,'rare',layers,new_start_x, #map_data[1])
 
 		end -- if(1)
 		
-		if ty == #map_data then
-		    
-    -- create a new row for base map
-   -- local new_row = {}
-   
+		
+		
+		if (ty+3) == #map_data then
+		
+				local new_row = {}
+
+		    print('❎❎❎')
+		        
     for x=1,#map_data[1] do
     
-   --  add(new_row, 8)  -- fill with grass
-   
+     add(new_row, tiles.grass)  -- fill with grass
+
     end
     
-   -- add(map_data, new_row)
+    add(map_data,new_row)
 
-    -- make tree layer row (same width, but nil)
-   -- local tree_row = {}
-			--	local flower_row = {}
+    
+   
+				local new_f_row = {}
 				
     for x=1,#map_data[1] do
-    
-     -- add(tree_row, nil)
-     -- add(flower_row, nil)
-
+        add(new_f_row, nil)
     end
     
-  --  add(tree_layer, tree_row)
-   -- add(flower_layer, flower_row)
-			--	local layers = {tree_layer, flower_layer}
+    add(f_layer, new_f_row)
 
-			--	local last_y = #map_data
-    
-    -- tree generation
-   -- generate_overlay(tiles.grass, tiles.tree, tree_layer, "rare", layers)
-    -- flower generation
-  --  generate_overlay(tiles.grass, tiles.flower, flower_layer, "rare", layers)
-    
-	
-	
+    -- optionally generate trees only in the new row
+    local new_y = #map_data
+    layer_gen(tiles.tree, f_layer, 'rare', layers, 1, #map_data[1], new_y, new_y)
+				layer_gen(tiles.water,f_layer,'rare',layers,1, #map_data[1], new_y, new_y)
+				layer_gen(tiles.flower,f_layer,'rare',layers,1, #map_data[1], new_y, new_y)
+
+  
 		end -- if(2)
 	
 
