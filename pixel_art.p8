@@ -2,62 +2,142 @@ pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
 function _init()
-	mpx=0
-	mpy=0
-	poke(0x5f2d,1)
-	sp = 51
 	
-	hx = 0
-	hy = 0
-	hsp = 3
-	
-	tx = 10
-	ty = 0
-	tsp = 5
-	
+	mouse_init()
+
 end
 
 function _update()
-	mpy=stat(33)
-	mpx=stat(32)
-	
-	
-	mouse_btn = stat(34)
-
-
-
+	mouse_update(mouse)
+	inventory_init()
 end
 
 function _draw()
 	cls()
-	
-	spr(hsp,hx,hy,2,2)
-	spr(tsp,tx,ty,2,2)
+	 
+	 inventory_draw()
+	 mouse_draw(mouse,inv)
+	--spr(hsp,hx,hy,2,2)
+	--spr(tsp,tx,ty,2,2)
 
-	holding = false
-	click_down = false
+	--holding = false
+	--click_down = false
 	
-	if mouse_btn == 1 then
+	--if mouse_btn == 1 then
 	--click_down = true
 	
-		if abs(mpx-hx)<=8 and abs(mpy-hy)<=8 and not holding then
+	--	if abs(mpx-hx)<=8 and abs(mpy-hy)<=8 and not holding then
 		
-			holding = true
-			hx = mpx - 4
-			hy = mpy - 4
+	--		holding = true
+	--		hx = mpx - 4
+	--		hy = mpy - 4
 			
-		end
+	--	end
 		
-		if abs(mpx-tx)<=8 and abs(mpy-ty)<=8 and not holding then
+	--	if abs(mpx-tx)<=8 and abs(mpy-ty)<=8 and not holding then
 		
-			holding= true
-			tx = mpx - 4
-			ty = mpy - 4
+	--		holding= true
+	--		tx = mpx - 4
+	--		ty = mpy - 4
 			
-		end
+	--	end
 		
- end
- spr(sp,mpx,mpy)
+-- end
+ 
+end
+-->8
+-- mouse --
+
+function mouse_init()
+
+	mouse = {
+			x=0,-- default value
+			y=0,-- default value
+			button = 0, -- default value
+			sp = 51 -- sprite 
+		}
+		
+		-- allows mouse usage
+		poke(0x5f2d,1)
+
+end
+
+function mouse_update(mouse)
+	
+	-- sets the mouse conf
+	mouse.y=stat(33) 
+	mouse.x=stat(32)
+	mouse.button = stat(34) -- left click
+	
+end
+
+function on_click(mouse)
+	
+	-- value for left and right click
+	local left_click = 1
+	local	right_click = 2
+
+	if mouse.button == left_click then
+		print('left button clicked',7)
+	end
+	
+	
+	if mouse.button == right_click then
+		print('right button clicked',7)
+	end
+	
+end
+
+function mouse_draw(mouse)
+	spr(mouse.sp,mouse.x,mouse.y)
+	on_click(mouse)
+	
+	
+--		if abs(mouse.x-inv[i].item_x)<=8 and abs(mouse.y-inv[i].inv_y)<=8 then
+	--	print('❎❎')
+		
+	--		holding = true
+	--		hx = mpx - 4
+	--		hy = mpy - 4
+			
+	--	end
+
+end
+-->8
+-- item inventory --
+function inventory_init()
+	
+	inv = {
+	
+	{sprite = 3,x=0,y=0},--house
+	{sprite = 5,x=0,y=0},--tree
+
+	}
+end
+
+function inventory_draw()
+
+    local inv_x =  0 -- begin from left
+    local inv_y =  125 -- inv at bottom
+    rectfill(inv_x, inv_y, inv_x + 130, inv_y - 15, 15)
+
+    for i=1,#inv do
+    
+        local item_x = inv_x - 10 + 12 * i
+        spr(inv[i].sprite, item_x, inv_y - 13, 2, 2)
+   					
+    end
+    print(inv[1].sprite)
+    print(inv[1].item_x)
+
+
+   -- rect(inv_x - 9 + selection * 9, inv_y, inv_x + selection * 9, inv_y + 9, 7)
+end
+
+-->8
+-- select and drag --
+function drag_init()
+	
 end
 __gfx__
 00000000777771111117777700000000000000000000000150000000000000000000000000000000000000000000000000000000000000000000000000000000
