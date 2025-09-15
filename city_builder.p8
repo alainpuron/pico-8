@@ -364,8 +364,8 @@ function confirm_init()
 
 	options = {
 	
-		{sp=2,h=1,w=1},
-		{sp=3,h=1,w=1}
+		{sp=2,h=1,w=1,x=0,y=0},
+		{sp=3,h=1,w=1,x=0,y=0}
 		
 	}
 	
@@ -382,11 +382,28 @@ function confirm_draw(options)
 		-- draw the options list
 		-- keep them in the middle and last row
 			for i = 1, #options do
-					spr(options[i].sp, middle_x * 6 + (i-1)*8, last_row * 8, 1, 1)
+			
+					options[i].x = abs(middle_x * 6 + (i-1)*8) 
+					options[i].y = abs(last_row * 8) 
+					
+					spr(options[i].sp, options[i].x,options[i].y , 1, 1)
+					
 			end
+			
+			
+			print(options[1].y  .. "," ..  options[1].x,0,50)
+			print(options[2].y  .. "," ..  options[2].x,0,60)
+
+			
 	
 	end
 	
+end
+
+function is_mouse_over(mouse)
+
+			
+
 end
 
 
