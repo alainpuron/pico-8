@@ -11,13 +11,16 @@ function _init()
 	mouse_init()
 	sel_menu_init()
 	base_map_init()
-marker_init()
+	marker_init()
+	confirm_init()
 
 end
 
 function _update()
+
 	mouse_update(mouse)
 	over_menu(mouse)
+	
 end
 
 function _draw()
@@ -27,15 +30,31 @@ function _draw()
 	draw_base_map(base_map)
 	sel_menu_draw(mouse)
  draw_in_base(mouse,base_map,marker)
-
 	
-	-- prints
+	marker_draw(marker)
+	
+	confirm_draw(options)
+	
+	-- prints --
+	
+	-- prints if the mouse if over the inv
 	print(mouse_over_inv,0,0,7)
+	
+	-- prints the tiles the mouse is over
 	mouse_over_tile(mouse)
+	
+	-- prints if left or right was clicked
 	mouse_click(mouse)
+	
+	-- prints the selected from inv
 	print(selection)
+	
+	-- prints if it can be placed
 	can_be_placed()
-	print_m(marker)
+	
+
+	last_row(marker)
+	middle_x(marker) 
 
 	-- mouse at the bottom to be displayed always on top
 	mouse_draw(mouse)
@@ -250,32 +269,126 @@ function can_be_placed()
 	
 end
 
+
+-- checks if the tile is already occupied
+function list_has(marker,mouse)
+	
+	
+	local tile_x = flr(mouse.x / 8) + 1
+ local tile_y = flr(mouse.y / 8) + 1
+
+	for i=1, #marker do 
+	
+			if marker[i].x == tile_x and marker[i].y == tile_y then
+			 -- list has it 
+				return true
+			
+			end 
+	
+	end
+	
+	return false
+	
+end
+
 function draw_in_base(mouse,base_map,marker)
 	
 				local tile_x = flr(mouse.x / 8) + 1
     local tile_y = flr(mouse.y / 8) + 1
 
-	if can_be_placed() then
+			if can_be_placed() and not list_has(marker,mouse) then
 			
 				add(marker,	{
 					x = tile_x,
 					y = tile_y,
+					sprite = 1
 				})
 				
-			
-  -- base_map[tile_y][tile_x] = 1 
+	end
+	
+	
+end
 
+
+
+function marker_draw(marker)
+	
+    for ma in all(marker) do
+    	  base_map[ma.y][ma.x] = ma.sprite 
+    end
+    
+end
+
+-- finds which is the last row 
+function last_row(marker)
+	
+	local last_row = 0
+	
+	for i = 1, #marker do 
+		
+	--	print(marker[i].y ..","..marker[i].x)
+		
+			if marker[i].y > last_row then
+				last_row = marker[i].y			
+			end
+			
+	end
+	
+	return last_row
+ --print("last row is: " .. last_row)
+
+	--print(last_row)
+		
+end
+
+-- finds the middle point of lenght 
+function middle_x(marker) 
+
+				local total_x = 0
+
+    for i = 1, #marker do
+        total_x += marker[i].x
+    end
+
+    local avg_x = total_x / #marker
+    
+    return avg_x
+    --print("middle x (average): " .. avg_x)
+
+end
+
+-->8
+-- confirm or cancel -- 
+
+function confirm_init()
+
+	options = {
+	
+		{sp=2,h=1,w=1},
+		{sp=3,h=1,w=1}
+		
+	}
+	
+end
+
+function confirm_draw(options)
+	
+	local last_row = last_row(marker)
+	local middle_x = middle_x(marker) 
+
+	-- if the marker has something then show 
+	if #marker > 0  then
+	
+		-- draw the options list
+		-- keep them in the middle and last row
+			for i = 1, #options do
+					spr(options[i].sp, middle_x * 6 + (i-1)*8, last_row * 8, 1, 1)
+			end
+	
 	end
 	
 end
 
-
-function print_m(marker)
-	
-    for m in all(marker) do
-        print("tile ("..m.y..","..m.x.."))")
-    end
-end
 
 __gfx__
 00000000773333770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
