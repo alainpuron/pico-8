@@ -352,7 +352,7 @@ function middle_x(marker)
 
     local avg_x = total_x / #marker
     
-    return avg_x
+    return abs(avg_x)
     --print("middle x (average): " .. avg_x)
 
 end
@@ -376,6 +376,7 @@ function confirm_draw(options)
 	local last_row = last_row(marker)
 	local middle_x = middle_x(marker) 
 
+
 	-- if the marker has something then show 
 	if #marker > 0  then
 	
@@ -383,16 +384,16 @@ function confirm_draw(options)
 		-- keep them in the middle and last row
 			for i = 1, #options do
 			
-					options[i].x = abs(middle_x * 6 + (i-1)*8) 
-					options[i].y = abs(last_row * 8) 
+					options[i].x = flr(middle_x * 6 + (i-1)*8) +2
+					options[i].y = flr(last_row * 8)  
 					
 					spr(options[i].sp, options[i].x,options[i].y , 1, 1)
 					
 			end
 			
 			
-			print(options[1].y  .. "," ..  options[1].x,0,50)
-			print(options[2].y  .. "," ..  options[2].x,0,60)
+			print(flr(options[1].y/8)  .. "," ..  flr(options[1].x/6)	,0,50)
+			print(flr(options[2].y/8)  .. "," .. flr(options[2].x/6)	,0,60)
 
 			
 	
