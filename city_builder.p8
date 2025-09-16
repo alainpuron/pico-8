@@ -13,6 +13,7 @@ function _init()
 	base_map_init()
 	marker_init()
 	confirm_init()
+	const_init()
 
 end
 
@@ -20,6 +21,7 @@ function _update()
 
 	mouse_update(mouse)
 	over_menu(mouse)
+	const_update(build,mouse)
 	
 end
 
@@ -34,6 +36,8 @@ function _draw()
 	marker_draw(marker)
 	
 	confirm_draw(options)
+	
+	const_draw(build)
 	
 	-- prints --
 	
@@ -52,6 +56,8 @@ function _draw()
 	-- prints if it can be placed
 	can_be_placed()
 	
+	--print confirm or cancel
+	confirm_cancel(mouse)
 
 	last_row(marker)
 	middle_x(marker) 
@@ -296,7 +302,7 @@ function draw_in_base(mouse,base_map,marker)
 				local tile_x = flr(mouse.x / 8) + 1
     local tile_y = flr(mouse.y / 8) + 1
 
-			if can_be_placed() and not list_has(marker,mouse) then
+			if can_be_placed() and not list_has(marker,mouse) and not is_mouse_over(mouse,options,1)  and not is_mouse_over(mouse,options,2)then
 			
 				add(marker,	{
 					x = tile_x,
@@ -312,10 +318,10 @@ end
 
 
 function marker_draw(marker)
-	
-    for ma in all(marker) do
-    	  base_map[ma.y][ma.x] = ma.sprite 
-    end
+				
+	    for ma in all(marker) do
+	    	  base_map[ma.y][ma.x] = ma.sprite 
+	    end
     
 end
 
@@ -384,30 +390,92 @@ function confirm_draw(options)
 		-- keep them in the middle and last row
 			for i = 1, #options do
 			
-					options[i].x = flr(middle_x * 6 + (i-1)*8) +2
-					options[i].y = flr(last_row * 8)  
+					options[i].x = flr(middle_x * 6 + (i-1) * 8) 
+					options[i].y = flr(last_row * 8) 
 					
 					spr(options[i].sp, options[i].x,options[i].y , 1, 1)
 					
 			end
 			
-			
-			print(flr(options[1].y/8)  .. "," ..  flr(options[1].x/6)	,0,50)
-			print(flr(options[2].y/8)  .. "," .. flr(options[2].x/6)	,0,60)
-
-			
-	
 	end
 	
 end
 
-function is_mouse_over(mouse)
+function is_mouse_over(mouse,list,i)
 
+			if abs(mouse.x - list[i].x) <=1 and abs(mouse.y - options[i].y) <=1 then
+				return true
+				else
+				return false
+			end
+	
+end
+
+
+function confirm_cancel(mouse)
+
+	confirm_build = false
+	cancel_build  = false
+	
+	if left_click and is_mouse_over(mouse,options,1) then
+		confirm_build = true
+		print(confirm_build)
+	end
+	
+	if left_click and is_mouse_over(mouse, options,2) then
+		cancel_build = true
+		print(cancel_build)
+	end
 			
 
 end
 
 
+-->8
+-- construction build --
+function const_init()
+	
+	-- const goes here 
+	build = {}
+
+end
+
+function const_update(build,mouse)
+	
+	if confirm_build then
+	
+		for i=1, #marker do
+		
+			-- randomly select a sprite from the list
+   local sprite = rnd({7, 8, 23, 24, 40, 55})
+	
+		
+			add(build,	{
+						x = marker[i].x,
+						y = marker[i].y,
+						sp = sprite
+			})
+			
+		end
+		
+		-- resets the table
+		marker = {}
+	
+	end
+
+
+end
+
+
+-- draws all the constructions
+function const_draw(build)
+
+
+    for c in all(build) do
+    	  base_map[c.y][c.x] = c.sp 
+    end
+    
+end
 __gfx__
 00000000773333770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000733333370333333008888880000000000000000000000000000000000000044400007777777777000000000000000000000000000000000000000000
