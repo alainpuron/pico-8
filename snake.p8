@@ -38,7 +38,7 @@ function snake_init()
 				-- body --
 		{x=0,y=0,sp=17},
 	
-		{x=0,y=0,sp=18} 	-- head
+		{x=16,y=0,sp=18} 	-- head
 		
 	}
 	
@@ -48,56 +48,38 @@ function snake_init()
 end
 
 function snake_update()
+		
 		snake_movement(snake)
 	
 end
 
 function snake_draw(snake)
 		
+		
+		
+		
 		-- snake head 
 		local head = snake[#snake]
 		
 		-- minus the head
-		for i = 1 , #snake-1 do
+		for i = 1 , #snake do
 		 			
 				-- body part 
 				local	part = snake[i]
 				
-				-- update to the last record
-				part.x = snake_h[#snake_h].x
-				part.y = snake_h[#snake_h].y
-				
+
 				--print(part.sp)
-				spr(part.sp,part.x+ (i-1)*8,part.y,1,1)
-				spr(head.sp,head.x+ (#snake-1)*8,head.y,1,1)
+				--spr(part.sp,part.x+ (i-1)*8,part.y,1,1)
+				spr(head.sp,head.x,head.y,1,1)
 
 		end
 		
-
---		for i = 1 , #snake_h do
-		 	
-		 --print(snake_h[i].x .. "," .. snake_h[i].y)		
-				
-	--	end
-		
-	--	print(head.sp)
+		print(head.x)
+		print(head.y)
+		print("-----")
+		print(last_x)
 
 		
-		
-
-	--	for i=1,#snake do
-		
-		 -- for j=1,#snake[i] do
-		  		
-		  	--	part = snake[i][j] -- body part spr
-		  	--	body_l = snake[i] 	-- body location x/y
-		  		
-		   -- spr(part,body_l.x + (i-1)*8,body_l.y,1,1,body_l.fx,body_l.fy)
-		    
-		--  end
-		  
-	--	end
-
 end
 
 function snake_movement(snake)
@@ -105,29 +87,23 @@ function snake_movement(snake)
 		local head = snake[#snake]
 			
 		-- tile coordinates
-		tile_x = 	flr(head.x / 8)
-  tile_y = 	flr(head.y / 8)
+		--tile_x = 	flr(head.x / 8)
+ 	-- tile_y = 	flr(head.y / 8)
   
 		-- converting tile coordinates to pixel coordinates
-		cursor_x = (tile_x * 8) 
-  cursor_y = tile_y * 8
-
-	for i = 1 , #snake do
-	
-			add(snake_h,{
-					x = cursor_x,
-					y = cursor_y		
-			})
-			
-			if btn(⬇️) then
-				head.y+=1
-			end
-			
-			head.x +=0.5
-					
+		--cursor_x = (tile_x * 8) 
+  --cursor_y = tile_y * 8
 		
-	end
- 
+		last_x = head.x
+		
+		if btnp(➡️) then
+			head.x+=8
+ 	end
+ 	
+ 	if btnp(⬇️) then
+			head.y+=8
+ 	end
+ 	
 end
 -->8
 -- map --
