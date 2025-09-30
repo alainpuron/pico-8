@@ -17,19 +17,21 @@ __lua__
 function _init()
 	snake_init() -- snake initiation
 	map_init()
-	food_init()
+	food_init() -- food initiation
 end
 
 function _update()
-	snake_update(snake_head)
+	snake_update(snake_head) -- update snake
+	ate_food(snake_head,food) -- did the snake ate the food?
 end
 
 function _draw()
 	cls()
 
-	map_draw(base_map)
-	food_draw(food)
+	map_draw(base_map) -- draw map tiles
+	food_draw(food)				-- draw food
 	snake_draw(snake_head) -- draw snake
+	
 end
 -->8
 -- snake --
@@ -56,6 +58,7 @@ function snake_update(snake_head)
 		snake_head.y += snake_head.velocity_y
 		
 		change_directions(snake_head) -- snake changes direction
+			update_body(snake_body,snake_head)
 end
 
 function snake_draw(snake_head)
@@ -64,30 +67,62 @@ function snake_draw(snake_head)
 		local x = snake_head.x 
 		local y = snake_head.y
 		
-		spr(sp,x,y,1,1)		
+		spr(sp,x,y,1,1)
+		
+		-- if snake body is larger than 0
+		if #snake_body > 0 then
+			
+			-- for every item inside 
+			-- draw it
+			for i = 1, #snake_body do
+			
+				local body = snake_body[i]
+				spr(body.sp,body.x,body.y,1,1)
+				
+			end
+			
+		end
+				
 end
 
 
+function update_body(snake_body,snake_head)
+	
+	-- the loop starts at #body - 1 and goes down to 1.
+	for i = #snake_body - 1, 1,-1 do
+		snake_body[i] = snake_body[i-1]
+	end
+	
+	if #snake_body > 0 then
+	
+		snake_body[1].x = snake_head.x
+		snake_body[1].y = snake_head.y
+
+	end
+	
+		
+end
+
 function change_directions(snake_head)
 	
-	if btnp(⬆️) then
-		snake_head.velocity_y -= 1
+	if btnp(⬆️) and snake_head.velocity_y ~= 1 then
+		snake_head.velocity_y = -1
 		snake_head.velocity_x =0
 	end
 	
-	if btnp(⬇️) then
-		snake_head.velocity_y += 1
+	if btnp(⬇️) and snake_head.velocity_y ~= -1 then
+		snake_head.velocity_y = 1
 		snake_head.velocity_x =0
 	end
 	
-	if btnp(➡️) then
+	if btnp(➡️) and snake_head.velocity_x ~= -1 then
 		snake_head.velocity_y = 0
-		snake_head.velocity_x +=1
+		snake_head.velocity_x = 1
 	end
 	
-	if btnp(⬅️) then
+	if btnp(⬅️) and snake_head.velocity_x ~= 1 then
 		snake_head.velocity_y = 0
-		snake_head.velocity_x -=1
+		snake_head.velocity_x = -1
 	end
 	
 	
@@ -155,14 +190,37 @@ end
 
 function create_food(food)
 	
-	--food.x = flr(rnd(120))
---	food.y = flr(rnd(120))
+	food.x = flr(rnd(120))
+	food.y = flr(rnd(120))
 
 end
 
 function food_draw(food)
 	
 	spr(food.sp,food.x,food.y,1,1)
+	
+end
+-->8
+-- food collition --
+
+function ate_food(snake_head,food)
+	
+	local sx = snake_head.x -- snake head x
+	local sy = snake_head.y -- snake head y
+	local fx = food.x -- food x
+	local fy = food.y -- food y
+	
+	if abs(sx-fx) <= 4 and abs(sy-fy) <= 4 then
+			create_food(food)
+			
+			add(snake_body,{
+			
+			x = fx,
+			y = fy,
+			sp = 17
+			
+			})
+	end
 	
 end
 __gfx__
