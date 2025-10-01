@@ -30,7 +30,7 @@ function _draw()
 
 	map_draw(base_map) -- draw map tiles
 	food_draw(food)				-- draw food
-	snake_draw(snake_head) -- draw snake
+	snake_draw(snake_head,snake_body) -- draw snake
 	
 end
 -->8
@@ -58,11 +58,12 @@ function snake_update(snake_head)
 		snake_head.y += snake_head.velocity_y
 		
 		change_directions(snake_head) -- snake changes direction
-			update_body(snake_body,snake_head)
+		update_body(snake_body,snake_head)
 end
 
-function snake_draw(snake_head)
+function snake_draw(snake_head,snake_body)
 		
+		-- snake head
 		local sp = snake_head.sp
 		local x = snake_head.x 
 		local y = snake_head.y
@@ -77,23 +78,30 @@ function snake_draw(snake_head)
 			for i = 1, #snake_body do
 			
 				local body = snake_body[i]
-				spr(body.sp,body.x,body.y,1,1)
+			
+				if body then
+					spr(body.sp,body.x,body.y,1,1)
+				end
 				
 			end
 			
 		end
+		
 				
 end
 
 
 function update_body(snake_body,snake_head)
 	
+	
 	-- the loop starts at #body - 1 and goes down to 1.
-	for i = #snake_body - 1, 1,-1 do
-		snake_body[i] = snake_body[i-1]
+	for i = #snake_body, 2,-1 do
+	--	snake_body[i] = snake_body[i-1]
+		snake_body[i].x = snake_body[i-1].x
+  snake_body[i].y = snake_body[i-1].y
 	end
 	
-	if #snake_body > 0 then
+	if #snake_body > 0  then
 	
 		snake_body[1].x = snake_head.x
 		snake_body[1].y = snake_head.y
@@ -211,12 +219,13 @@ function ate_food(snake_head,food)
 	local fy = food.y -- food y
 	
 	if abs(sx-fx) <= 4 and abs(sy-fy) <= 4 then
+			
 			create_food(food)
 			
 			add(snake_body,{
 			
-			x = fx,
-			y = fy,
+			x = sx,
+			y = sy,
 			sp = 17
 			
 			})
