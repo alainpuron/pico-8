@@ -45,21 +45,43 @@ function snake_init()
 			sp = 18,
 			velocity_x = 0,
 			velocity_y = 0,
-			speed = 1	
+			speed = 1,
+			fx = false,
+			fy = false	
 	}
 	
 	snake_body={}
 	
 end
+trail = {}
 
 function snake_update(snake_head)
-		
-		snake_head.x += snake_head.velocity_x
-		snake_head.y += snake_head.velocity_y
-		
-		change_directions(snake_head) -- snake changes direction
-		update_body(snake_body,snake_head)
+    -- save current head position in trail
+    add(trail, {x=snake_head.x, y=snake_head.y})
+
+    -- limit trail size (enough for all body parts, each spaced by "gap")
+    local gap = 7 -- bigger number = more visible separation
+    local max_length = (#snake_body * gap) + 1
+    while #trail > max_length do
+        deli(trail, 1)
+    end
+
+    -- move head
+    snake_head.x += snake_head.velocity_x
+    snake_head.y += snake_head.velocity_y
+
+    change_directions(snake_head)
+
+    -- position each body part with spacing
+    for i=1,#snake_body do
+        local index = #trail - (i * gap)
+        if index > 0 then
+            snake_body[i].x = trail[index].x
+            snake_body[i].y = trail[index].y
+        end
+    end
 end
+
 
 function snake_draw(snake_head,snake_body)
 		
@@ -67,8 +89,10 @@ function snake_draw(snake_head,snake_body)
 		local sp = snake_head.sp
 		local x = snake_head.x 
 		local y = snake_head.y
-		
-		spr(sp,x,y,1,1)
+		local fx = snake_head.fx
+		local fy = snake_head.fy
+
+		spr(sp,x,y,1,1,fx,fy)
 		
 		-- if snake body is larger than 0
 		if #snake_body > 0 then
@@ -97,14 +121,14 @@ function update_body(snake_body,snake_head)
 	-- the loop starts at #body - 1 and goes down to 1.
 	for i = #snake_body, 2,-1 do
 	--	snake_body[i] = snake_body[i-1]
-		snake_body[i].x = snake_body[i-1].x
-  snake_body[i].y = snake_body[i-1].y
+		snake_body[i].x = snake_body[i-1].x 
+  snake_body[i].y = snake_body[i-1].y 
 	end
 	
 	if #snake_body > 0  then
 	
-		snake_body[1].x = snake_head.x
-		snake_body[1].y = snake_head.y
+		snake_body[1].x = snake_head.x 
+		snake_body[1].y = snake_head.y 
 
 	end
 	
@@ -116,11 +140,15 @@ function change_directions(snake_head)
 	if btnp(⬆️) and snake_head.velocity_y ~= 1 then
 		snake_head.velocity_y = -1
 		snake_head.velocity_x =0
+		snake_head.fx = false
+    snake_head.fy = false
 	end
 	
 	if btnp(⬇️) and snake_head.velocity_y ~= -1 then
 		snake_head.velocity_y = 1
 		snake_head.velocity_x =0
+		snake_head.fx = false
+    snake_head.fy = true
 	end
 	
 	if btnp(➡️) and snake_head.velocity_x ~= -1 then
@@ -224,8 +252,8 @@ function ate_food(snake_head,food)
 			
 			add(snake_body,{
 			
-			x = sx,
-			y = sy,
+			x = fx,
+			y = fy,
 			sp = 17
 			
 			})
