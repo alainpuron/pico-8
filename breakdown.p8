@@ -22,8 +22,10 @@ function _draw()
 	paddle_draw(paddle) -- draw paddle
 	ball_draw(ball) -- draw ball
 	brick_draw(bricks_layout) -- draw bricks
-	
-	
+	print(paddle.middle)
+	print(paddle_right)
+	print(paddle_left)
+
 end
 
 -->8
@@ -51,6 +53,11 @@ function paddle_update(paddle)
 	-- allows mouse to work
 	poke(0x5f2d,1)
 	
+	-- update the paddle collitions
+		paddle.middle = flr((paddle.x + paddle.w) / 2)
+		paddle_right = flr(paddle.x + paddle.w)
+		paddle_left = flr(paddle.x)	
+	
 	-- functions --  
 
 	
@@ -74,7 +81,8 @@ function ball_init()
 		y=30,
 		vel_x = 0,
 		vel_y = 1,
-		max_speed = 0.5,
+		speed = 1,
+		max_speed = 10,
 		sprite = 1,
 		h=4,
 		w=6
@@ -144,27 +152,32 @@ function bounce(ball, paddle)
 
 		wall_bounce(ball) -- wall bounce
 		
-				paddle.middle = paddle.x + paddle.w / 2  if collition(ball, paddle) then
-   
+				
+	 if collition(ball, paddle) then
+     
     local offset = (ball.x - paddle.middle)/(paddle.w/2)
-    ball.vel_y = -ball.vel_y
-    ball.vel_x = ball.max_speed * offset
-    
-  end
   
+    ball.vel_y = -ball.vel_y
+    ball.vel_x = ball.speed * offset
+  
+  end -- if
+  
+  -- destroy brick on hit 
   	destroy_brick(bricks,ball)
+  	
 end
 
 
 function destroy_brick(bricks,ball)
 
 	for brick in all(bricks) do	
-	
-			local offset = (ball.x - brick.middle)/(brick.w/2)
-
+			
+			--local offset = (ball.x - brick.middle)/(brick.w/2)
+			
+			
 			if collition(ball,brick) then
 				ball.vel_y =- ball.vel_y
-    ball.vel_x = ball.max_speed * offset 
+    --ball.vel_x = ball.max_speed * offset 
 				del(bricks,brick)
 				break
 			end
@@ -217,7 +230,7 @@ function save_brick(bricks_layout)
 				add(bricks, {
 	    x = (x-1)*9,
 	    y = (y-1)*3,
-	    middle =	flr((x-1)*9)/2, -- half of the brick width
+	    middle =	4, -- half of the brick width
 	    w = 8, -- width
 	    h = 2  -- height
 				})
